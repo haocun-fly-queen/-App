@@ -1,0 +1,12 @@
+### 1. 管理员登录
+POST http://localhost:8080/admin/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. 获取用户列表（登录后测试）
+GET http://localhost:8080/admin/user/list?page=1&size=10
+Authorization: Bearer  MXwxNzc2NjcyNzQ4Nzg3fGFkbWlufDExNzc3NQ==.8052e40c9187ac6bfccc91d643d4583705f33417cfb3dfbc3c3090bfc73d5c17

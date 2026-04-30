@@ -1,0 +1,21 @@
+### 保存饮食记录
+POST http://localhost:8080/api/diet/record
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "mealType": 1,
+  "remark": "测试午餐",
+  "items": [
+    {
+      "foodType": 1,
+      "foodId": 1,
+      "foodName": "米饭",
+      "eatWeight": 150,
+      "calorie": 174,
+      "carbs": 38.4,
+      "protein": 3.9,
+      "fat": 0.45
+    }
+  ]
+}

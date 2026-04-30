@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>登录测试</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>管理员登录测试</h2>
+<form id="loginForm">
+    用户名: <input type="text" id="username" value="admin"><br><br>
+    密码: <input type="password" id="password" value="admin123"><br><br>
+    <button type="button" onclick="login()">登录</button>
+</form>
+<div id="result" style="margin-top:20px; white-space:pre-wrap;"></div>
+
+<script>
+    async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        document.getElementById('result').innerHTML = '登录中...';
+
+        try {
+            const response = await fetch('http://localhost:8080/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            document.getElementById('result').innerHTML = JSON.stringify(data, null, 2);
+
+            if (data.code === 200 && data.data && data.data.token) {
+                console.log('Token:', data.data.token);
+            }
+        } catch (err) {
+            document.getElementById('result').innerHTML = '错误: ' + err.message;
+        }
+    }
+</script>
+</body>
+</html>
