@@ -15,6 +15,11 @@ public class User {
     private String wxOpenid;
 
     private String phone;
+    private String username;
+
+    private String passwordHash;
+
+    private Integer exerciseLevel;
 
     private String nickname;
 
@@ -41,6 +46,7 @@ public class User {
 
     private Integer status;
 
+private String email;
     /**
      * 过敏源
      */

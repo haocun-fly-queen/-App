@@ -3,6 +3,7 @@ package com.eatnotfat.backend.controller;
 import com.eatnotfat.backend.dto.DietPlanRequest;
 import com.eatnotfat.backend.dto.RecognizeRequest;
 import com.eatnotfat.backend.service.QwenService;
+import com.eatnotfat.backend.vo.DailyPlanResult;
 import com.eatnotfat.backend.vo.DietPlanResult;
 import com.eatnotfat.backend.vo.Result;
 import com.eatnotfat.backend.vo.RecognizeResult;
@@ -50,7 +51,7 @@ public class AIController {
     }
 
     /**
-     * AI 智能饮食规划接口
+     * AI 智能饮食规划接口（单餐）
      */
     @PostMapping("/diet-plan")
     public Result<DietPlanResult> generateDietPlan(@RequestBody DietPlanRequest request) {
@@ -62,6 +63,25 @@ public class AIController {
             DietPlanResult result = qwenService.generateDietPlan(request);
 
             System.out.println("规划结果: " + (result != null ? result.getMealType() : "无结果"));
+            return Result.success(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("规划失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * AI 全天饮食规划接口（新增）
+     */
+    @PostMapping("/daily-plan")
+    public Result<DailyPlanResult> generateDailyPlan(@RequestBody DietPlanRequest request) {
+        try {
+            System.out.println("========== AI全天规划请求 ==========");
+            System.out.println("用户: " + request.getUserId());
+
+            DailyPlanResult result = qwenService.generateDailyPlan(request);
+
+            System.out.println("规划完成，共 " + result.getMeals().size() + " 餐");
             return Result.success(result);
         } catch (Exception e) {
             e.printStackTrace();

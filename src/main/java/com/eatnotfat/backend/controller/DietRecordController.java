@@ -7,6 +7,7 @@ import com.eatnotfat.backend.service.DietRecordService;
 import com.eatnotfat.backend.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.eatnotfat.backend.entity.DietRecordItem;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +31,9 @@ public class DietRecordController {
         Map<String, Object> result = new HashMap<>();
         try {
             System.out.println("收到保存请求: userId=" + dto.getUserId() + ", mealType=" + dto.getMealType());
+            if (dto.getItems() == null) {
+                dto.setItems(new ArrayList<>());
+            }
             System.out.println("食物数量: " + dto.getItems().size());
 
             // 转换 DTO 到实体
@@ -185,13 +189,41 @@ public class DietRecordController {
     /**
      * 获取今日已摄入热量
      */
+    /**
+     * 获取今日已摄入热量 + 餐次明细
+     */
     @GetMapping("/today")
     public Map<String, Object> getTodayCalories(@RequestParam Long userId) {
         Map<String, Object> result = new HashMap<>();
         try {
-            int totalCalories = dietRecordService.getDailyTotalCalories(userId, LocalDate.now());
+            LocalDate today = LocalDate.now();
+            int totalCalories = dietRecordService.getDailyTotalCalories(userId, today);
+            List<DietRecord> records = dietRecordService.getRecordsByDate(userId, today);
+
+            // 组装餐次明细
+            List<Map<String, Object>> meals = new ArrayList<>();
+            for (DietRecord record : records) {
+                Map<String, Object> meal = new HashMap<>();
+                meal.put("type", record.getMealType());
+                meal.put("typeName", getMealTypeName(record.getMealType()));
+                meal.put("calories", record.getTotalCalorie() != null ? record.getTotalCalorie().intValue() : 0);
+                meal.put("foods", record.getRemark() != null ? record.getRemark() : "");
+
+                // 查询该餐的食物明细
+                List<DietRecordItem> items = dietRecordService.getRecordItems(record.getId());
+                StringBuilder foodsText = new StringBuilder();
+                for (DietRecordItem item : items) {
+                    if (foodsText.length() > 0) foodsText.append("、");
+                    foodsText.append(item.getFoodName());
+                }
+                meal.put("foods", foodsText.length() > 0 ? foodsText.toString() : (record.getRemark() != null ? record.getRemark() : ""));
+
+                meals.add(meal);
+            }
+
             result.put("code", 200);
             result.put("data", totalCalories);
+            result.put("meals", meals);
         } catch (Exception e) {
             e.printStackTrace();
             result.put("code", 500);
@@ -199,6 +231,17 @@ public class DietRecordController {
         }
         return result;
     }
+
+    private String getMealTypeName(int type) {
+        switch (type) {
+            case 1: return "早餐";
+            case 2: return "午餐";
+            case 3: return "晚餐";
+            case 4: return "加餐";
+            default: return "其他";
+        }
+    }
+
 
     /**
      * 获取数据看板数据
